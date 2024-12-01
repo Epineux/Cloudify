@@ -15,7 +15,11 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { actionsDropdownItems } from '@/constants';
-import { renameFile, updateFileUsers } from '@/lib/actions/file.actions';
+import {
+  deleteFile,
+  renameFile,
+  updateFileUsers,
+} from '@/lib/actions/file.actions';
 import { Info } from 'lucide-react';
 
 import { useUser } from '@/context/UserContext';
@@ -37,7 +41,7 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
   const [emails, setEmails] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const path = usePathname();
-  const userId = useUser();
+  const { userId, userEmail } = useUser();
 
   const closeAllModals = () => {
     setIsModalOpen(false);
@@ -61,7 +65,14 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
           path,
         }),
       share: () => updateFileUsers({ fileId: file.$id, emails, path }),
-      delete: () => {},
+      delete: () =>
+        deleteFile({
+          file: file,
+          bucketFileId: file.bucketFileId,
+          userId,
+          userEmail,
+          path,
+        }),
     };
 
     success = await actions[action.value as keyof typeof actions]();
@@ -93,6 +104,12 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
               onInputChange={setEmails}
               onRemove={handleRemoveUser}
             />
+          )}
+          {value === 'delete' && (
+            <p className="delete-confirmation">
+              Are you sure you want to delete{' '}
+              <span className="delete-file-name">{file.name}</span>?
+            </p>
           )}
         </DialogHeader>
         {['rename', 'share', 'delete'].includes(value) && (

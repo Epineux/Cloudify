@@ -13,7 +13,12 @@ const Layout = async ({ children }: { children: React.ReactNode }) => {
   if (!currentUser) return redirect('/sign-in');
 
   return (
-    <UserProvider user={currentUser.$id}>
+    <UserProvider
+      user={{
+        userId: currentUser.$id,
+        userEmail: currentUser.email,
+      }}
+    >
       <main className="flex h-screen">
         <Sidebar {...currentUser} />
         <section className="flex h-full flex-1 flex-col">

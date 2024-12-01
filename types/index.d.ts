@@ -35,7 +35,9 @@ declare interface UpdateFileUsersProps {
   path: string;
 }
 declare interface DeleteFileProps {
-  fileId: string;
+  file: Models.Document;
+  userId: string;
+  userEmail: string;
   bucketFileId: string;
   path: string;
 }

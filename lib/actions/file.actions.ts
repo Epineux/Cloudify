@@ -134,6 +134,51 @@ export const updateFileUsers = async ({
     revalidatePath(path);
     return parseStringify(updatedFile);
   } catch (error) {
-    handleError(error, 'Failed to rename file');
+    handleError(error, 'Failed to update file');
+  }
+};
+
+export const deleteFile = async ({
+  file,
+  bucketFileId,
+  path,
+  userId,
+  userEmail,
+}: DeleteFileProps) => {
+  const { databases, storage } = await createAdminClient();
+
+  try {
+    // The current user is the owner of the file
+    if (file.owner.$id === userId) {
+      const deletedFile = await databases.deleteDocument(
+        appwriteConfig.databaseId,
+        appwriteConfig.filesCollectionId,
+        file.$id
+      );
+      // The file is deleted from the bucket for everyone
+      if (deletedFile) {
+        await storage.deleteFile(appwriteConfig.bucketId, bucketFileId);
+      }
+      // The current user is not the owner of the file
+    } else {
+      // Remove the current user from the file users
+      const updatedFileUsers = file.users.filter(
+        (user: string) => user !== userEmail
+      );
+      // The file is only deleted for this user
+      await databases.updateDocument(
+        appwriteConfig.databaseId,
+        appwriteConfig.filesCollectionId,
+        file.$id,
+        {
+          users: updatedFileUsers,
+        }
+      );
+    }
+
+    revalidatePath(path);
+    return parseStringify({ status: 'success' });
+  } catch (error) {
+    handleError(error, 'Failed to delete file');
   }
 };
