@@ -1,5 +1,4 @@
 'use client';
-
 import {
   Dialog,
   DialogContent,
@@ -17,7 +16,9 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { actionsDropdownItems } from '@/constants';
 import { renameFile, updateFileUsers } from '@/lib/actions/file.actions';
+import { Info } from 'lucide-react';
 
+import { useUser } from '@/context/UserContext';
 import { constructDownloadUrl } from '@/lib/utils';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -36,6 +37,7 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
   const [emails, setEmails] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const path = usePathname();
+  const userId = useUser();
 
   const closeAllModals = () => {
     setIsModalOpen(false);
@@ -69,7 +71,6 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
 
   const renderDialogContent = () => {
     if (!action) return null;
-
     const { value, label } = action;
     return (
       <DialogContent className="shad-dialog button">
@@ -88,27 +89,48 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
           {value === 'share' && (
             <ShareInput
               file={file}
+              userId={userId}
               onInputChange={setEmails}
               onRemove={handleRemoveUser}
             />
           )}
         </DialogHeader>
         {['rename', 'share', 'delete'].includes(value) && (
-          <DialogFooter className="flex flex-col gap-3 md:flex-row">
-            <Button onClick={handleAction} className="modal-submit-button">
-              <p className="capitalize">{label}</p>
-              {isLoading && (
-                <Image
-                  src="/assets/icons/loader.svg"
-                  width={24}
-                  height={24}
-                  alt="loader"
-                />
+          <DialogFooter className="block">
+            <div className="flex flex-col gap-4 md:flex-row w-full">
+              <Button
+                onClick={handleAction}
+                className="modal-submit-button py-3"
+                disabled={
+                  (label === 'Share' || label === 'Rename') &&
+                  userId !== file.owner.$id
+                }
+              >
+                <p className="capitalize">{label}</p>
+                {isLoading && (
+                  <Image
+                    src="/assets/icons/loader.svg"
+                    width={24}
+                    height={24}
+                    alt="loader"
+                  />
+                )}
+              </Button>
+              <Button
+                onClick={closeAllModals}
+                className="modal-cancel-button py-3"
+              >
+                Cancel
+              </Button>
+            </div>
+            {(label === 'Share' || label === 'Rename') &&
+              userId !== file.owner.$id && (
+                <p className=" flex items-center gap-2 caption text-light-200 mt-2 break-words">
+                  <Info size={16} />
+                  As you're not the owner of this file, you cant{' '}
+                  {label.toLowerCase()} it
+                </p>
               )}
-            </Button>
-            <Button onClick={closeAllModals} className="modal-cancel-button">
-              Cancel
-            </Button>
           </DialogFooter>
         )}
       </DialogContent>

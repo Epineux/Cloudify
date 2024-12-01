@@ -1,14 +1,11 @@
 import Card from '@/components/Card';
 import Sort from '@/components/Sort';
 import { getFiles } from '@/lib/actions/file.actions';
-import { getCurrentUser } from '@/lib/actions/user.actions';
-
 import { Models } from 'node-appwrite';
 
 const page = async ({ params }: SearchParamProps) => {
   const type = ((await params)?.type as string) || '';
   const files = await getFiles();
-  const currentUser = await getCurrentUser();
 
   return (
     <div className="page-container">

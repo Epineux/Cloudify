@@ -11,6 +11,9 @@
     @apply bg-white text-dark-200 min-h-screen;
   }
 
+  p {
+    text-wrap: pretty;
+  }
   /* Remove scrollbar */
   .remove-scrollbar::-webkit-scrollbar {
     width: 0px;
