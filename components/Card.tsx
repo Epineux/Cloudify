@@ -2,6 +2,7 @@ import { convertFileSize } from '@/lib/utils';
 import Link from 'next/link';
 import { Models } from 'node-appwrite';
 import ActionDropdown from './ActionDropdown';
+import AdminBadge from './AdminBadge';
 import FormatedDateTime from './FormatedDateTime';
 import Thumbnail from './Thumbnail';
 
@@ -28,9 +29,12 @@ const Card = ({ file }: { file: Models.Document }) => {
           date={file.$createdAt}
           className="body-2 text-light-100"
         />
-        <p className="caption line-clamp-1 text-light-200">
-          By: {file.owner.fullName}
-        </p>
+        <div className="flex justify-between">
+          <p className="caption line-clamp-1 text-light-200">
+            By: {file.owner.fullName}
+          </p>
+          <AdminBadge file={file} />
+        </div>
       </div>
     </Link>
   );

@@ -1,3 +1,4 @@
+/* eslint-disable tailwindcss/no-custom-classname */
 'use client';
 import {
   Dialog,
@@ -67,7 +68,7 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
       share: () => updateFileUsers({ fileId: file.$id, emails, path }),
       delete: () =>
         deleteFile({
-          file: file,
+          file,
           bucketFileId: file.bucketFileId,
           userId,
           userEmail,
@@ -86,13 +87,13 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
     return (
       <DialogContent className="shad-dialog button">
         <DialogHeader className="flex flex-col gap-3">
-          <DialogTitle className="text-center text-light-100">
+          <DialogTitle className="text-light-100 text-center">
             {label}
           </DialogTitle>
           {value === 'rename' && (
             <Input
               type="text"
-              value={name}
+              value={name.substring(0, name.lastIndexOf('.')) || name}
               onChange={(e) => setName(e.target.value)}
             />
           )}
@@ -114,7 +115,7 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
         </DialogHeader>
         {['rename', 'share', 'delete'].includes(value) && (
           <DialogFooter className="block">
-            <div className="flex flex-col gap-4 md:flex-row w-full">
+            <div className="flex w-full flex-col gap-4 md:flex-row">
               <Button
                 onClick={handleAction}
                 className="modal-submit-button py-3"
@@ -142,9 +143,9 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
             </div>
             {(label === 'Share' || label === 'Rename') &&
               userId !== file.owner.$id && (
-                <p className=" flex items-center gap-2 caption text-light-200 mt-2 break-words">
+                <p className=" caption text-light-200 mt-2 flex items-center gap-2 break-words">
                   <Info size={16} />
-                  As you're not the owner of this file, you cant{' '}
+                  As you&apos;re not the owner of this file, you cant{' '}
                   {label.toLowerCase()} it
                 </p>
               )}
