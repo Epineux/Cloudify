@@ -70,7 +70,7 @@ const Search = () => {
         {open && (
           <ul className="search-result">
             {results.length > 0 ? (
-              results.map((file) => (
+              results.slice(0, 7).map((file) => (
                 <li
                   className="flex items-center justify-between"
                   key={file.$id}
