@@ -1,51 +1,42 @@
 import { Chart } from '@/components/Chart';
+import { ChartSkeleton } from '@/components/ChartSkeleton';
 import FileSummaryList from '@/components/FileSummaryList';
 import RecentFilesList from '@/components/RecentFilesList';
+import { RecentFilesSkeleton } from '@/components/RecentFilesSkeleton';
 import { getFiles, getTotalSpaceUsed } from '@/lib/actions/file.actions';
 import { getUsageSummary } from '@/lib/utils';
 import { Suspense } from 'react';
 
-// Composant pour le contenu principal du dashboard
-const DashboardContent = async () => {
-  // Parallel requests
-  const [files, totalSpace] = await Promise.all([
-    getFiles({ types: [], limit: 10 }),
-    getTotalSpaceUsed(),
-  ]);
+export const experimental_ppr = true;
 
-  // Get usage summary
+const ChartSection = async () => {
+  const totalSpace = await getTotalSpaceUsed();
   const usageSummary = getUsageSummary(totalSpace);
+  return (
+    <section>
+      <Chart used={totalSpace.used} />
+      <FileSummaryList summaries={usageSummary} />
+    </section>
+  );
+};
 
+const RecentFilesSection = async () => {
+  const { documents: files } = await getFiles({ types: [], limit: 10 });
+
+  return <RecentFilesList files={files} />;
+};
+
+const Dashboard = () => {
   return (
     <div className="dashboard-container">
-      <section>
-        <Chart used={totalSpace.used} />
+      <Suspense fallback={<ChartSkeleton />}>
+        <ChartSection />
+      </Suspense>
 
-        <FileSummaryList summaries={usageSummary} />
-      </section>
-
-      <section className="dashboard-recent-files">
-        <RecentFilesList files={files.documents} />
-      </section>
+      <Suspense fallback={<RecentFilesSkeleton />}>
+        <RecentFilesSection />
+      </Suspense>
     </div>
   );
 };
-
-// Page principale avec Suspense
-const Dashboard = () => {
-  return (
-    <Suspense fallback={<DashboardSkeleton />}>
-      <DashboardContent />
-    </Suspense>
-  );
-};
-
-// Skeleton à remplacer par votre implémentation
-const DashboardSkeleton = () => (
-  <div className="dashboard-container">
-    {/* Placeholders pour le chargement */}
-    <div>Chargement...</div>
-  </div>
-);
-
 export default Dashboard;

@@ -7,6 +7,7 @@ import { getFileTypesParams } from '@/lib/utils';
 import { Suspense } from 'react';
 import Loading from './loading';
 
+
 const page = async ({ searchParams, params }: SearchParamProps) => {
   const searchText = ((await searchParams)?.query as string) || '';
   const sort = ((await searchParams)?.sort as string) || '';
