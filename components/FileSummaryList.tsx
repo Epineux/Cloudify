@@ -4,7 +4,18 @@ import { convertFileSize } from '@/lib/utils';
 import Image from 'next/image';
 import Link from 'next/link';
 
-const FileSummaryList = ({ summaries }) => (
+interface FileSummarySingle {
+  title: string;
+  size: number;
+  latestDate: string;
+  icon: string;
+  url: string;
+}
+interface FileSummaryListProps {
+  summaries: FileSummarySingle[];
+}
+
+const FileSummaryList = ({ summaries }: FileSummaryListProps) => (
   <ul className="dashboard-summary-list">
     {summaries.map((summary) => (
       <Link
