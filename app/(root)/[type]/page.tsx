@@ -2,11 +2,13 @@
 /* eslint-disable tailwindcss/classnames-order */
 
 import FilesList from '@/components/FilesList';
+
+import { FilesTypeSize } from '@/components/FilesTypeSize';
 import Sort from '@/components/Sort';
+import { getTotalSpaceUsed } from '@/lib/actions/file.actions';
 import { getFileTypesParams } from '@/lib/utils';
 import { Suspense } from 'react';
 import Loading from './loading';
-
 
 const page = async ({ searchParams, params }: SearchParamProps) => {
   const searchText = ((await searchParams)?.query as string) || '';
@@ -14,26 +16,28 @@ const page = async ({ searchParams, params }: SearchParamProps) => {
   const type = ((await params)?.type as string) || '';
   const types = getFileTypesParams(type) as FileType[];
 
-  return (
-    <div className="page-container">
-      <section className="w-full">
-        <h1 className="h1 capitalize">{type}</h1>
+  const totalSpaceUsed = await getTotalSpaceUsed();
 
-        <div className="total-size-section">
-          <p className="body-1">
-            Total : <span className="h5">0 MB</span>
-          </p>
-          <div className="sort-container">
-            <p className="body-1 hidden text-light-200 sm:block">Sort by:</p>
-            <Sort />
+  return (
+    <Suspense fallback={<Loading />}>
+      <div className="page-container">
+        <section className="w-full">
+          <h1 className="h1 capitalize">{type}</h1>
+          <div className="total-size-section">
+            <p className="body-1">
+              Total :{' '}
+              <FilesTypeSize type={type} totalSpaceUsed={totalSpaceUsed} />
+            </p>
+            <div className="sort-container">
+              <p className="body-1 hidden text-light-200 sm:block">Sort by:</p>
+              <Sort />
+            </div>
           </div>
-        </div>
-      </section>
-      {/* Render the files */}
-      <Suspense fallback={<Loading />}>
+        </section>
+        {/* Render the files */}
         <FilesList types={types} searchText={searchText} sort={sort} />
-      </Suspense>
-    </div>
+      </div>
+    </Suspense>
   );
 };
 
